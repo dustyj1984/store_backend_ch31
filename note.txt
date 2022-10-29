@@ -18,9 +18,15 @@ deactivate
 # installed flask
 python -m pip install flask
 
+python -m pip install pymongo "pymongo[srv]" flask-pymongo certifi
+
 
 # code
 
 
 # run the server
 python server.py
+
+#proper way to run the server
+flask --app server --debug run
+
