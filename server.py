@@ -46,6 +46,28 @@ def save_product():
 
     if product is None:
         return abort(400, "No Product required")
+    
+    if not "title" in product:
+        return abort(400, "No Title")
+        
+    if len(product["title"]) < 5:
+        return abort(400, "Title too short")
+    
+    if not "category" in product:
+        return abort(400, "No Category")
+    
+    if not "price" in product:
+        return abort(400, "No Price")
+
+    if (not isinstance(product["price"], float)) and not isinstance(product["price"], int):
+        return abort(400, "Price must be a number")
+    
+    if product["price"] < 1:
+        return abort(400, "Invalid Price")
+
+
+
+    
 
     product["category"] = product["category"].lower()
 
@@ -67,8 +89,6 @@ def delete_product(id):
     return json.dumps({"count": res.deleted_count})
 
 
-    
-
 @app.get('/api/products/count')
 def total_count():
     count = db.products.count_documents({})
@@ -89,10 +109,6 @@ def product_details(id):
     if prod:
         return json.dumps(fix_id(prod))
     return abort(404, "Product not found")
-
-
-
-   
 
 @app.get('/api/catalog/<category>')
 def by_category(category):
@@ -119,7 +135,7 @@ def higher_than(amount):
     for prod in cursor:
         results.append(fix_id(prod))
     return json.dumps(results)
-    
+
 @app.get('/api/categroy/unique')
 def unique_cats():
     results = []
@@ -127,6 +143,50 @@ def unique_cats():
     for cat in cursor:
         results.append(cat)
     return json.dumps( results )
+    
+@app.post('/api/coupons')
+def save_coupon():
+    coupon = request.get_json()
+    if not coupon:
+        return abort(400, "No Coupon required")
+    
+    if not "code" in coupon:
+        return abort(400, "No Coupon code required")
+    
+    if not "discount" in coupon:
+        return abort(400, "No Coupon discount required")
+    
+    if (not isinstance ( coupon["discount"], float)) and not isinstance ( coupon["discount"], int):
+        return abort(400, "Coupon discount must be a number")
+    db.coupons.insert_one(coupon)
+    fix_id(coupon)
+    return json.dumps(coupon)
+
+
+@app.get('/api/coupons')
+def get_coupons():
+    cursor = db.coupons.find({})
+    results = []
+    for coupon in cursor:
+        results.append(fix_id(coupon))
+    return json.dumps(results)
+
+@app.get('/api/coupons/<code>')
+def get_coupon(code):
+    coupon = db.coupons.find_one({"code": code})
+    if coupon:
+        return json.dumps(fix_id(coupon))
+    return abort(404, "Coupon not found")
+
+
+
+   
+
+
+
+
+
+
 
 
 
