@@ -6,15 +6,14 @@ import json
 from config import me, db
 from mock_data import catalog
 from bson import ObjectId
+from flask_cors import CORS
 
 
 app = Flask('Server')
+CORS(app) # disable CORS, enable on PROD
 
 
-################################################################
-#      API ENDPOINTS
-#      JSON
-###############################################################
+
 
 @app.get('/api/version')
 def version():
